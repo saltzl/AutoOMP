@@ -1,0 +1,26 @@
+USERS GUIDE:
+
+AutoOMP depends on an LLVM version >3.8
+
+To compile this pass, the full source of LLVM must be available on the target machine. 
+
+Steps:
+
+After unzipping the package, create a "build" directory
+
+In the build directory, run "cmake ../path/to/source"
+
+After CMake completes, run "make"
+
+This will build the pass
+
+
+To run the pass, first compile a program to the llvm bitcode.
+Then, run "opt -load ../path/to/pass.so -autoOMP ../path/to/bitcode -S output.ll"
+
+This will create the llvm bitcode file converted to use open mp parallelism.
+
+
+
+NOTE: 
+	AutoOMP currently does not produce useable code. The calls to kpmc_fork_call, and kpmc_for_static_init are not being correctly formed. Once this is solved, autoOMP will be able to produce runnable openmp code
