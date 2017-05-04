@@ -428,21 +428,21 @@ parallelization.
 Unfortunately, in the time available we were unable to fully implement runnable automatic
 open mp conversion. The documentation available for the OpenMP implementation is limited
 and as such we were unable to find the appropriate calling conventions for both
-kpmc_fork_call, and kpmc_for_static_init. However, the project was to some degree a success.
+\texttt{kpmc\_fork\_call}, and \texttt{kpmc\_for\_static\_init}. However, the project was to some degree a success.
 The AutoOMP pass correctly identifies a subset of parallelizable loops, and can separate them
 from the main function into a callable region. Additionally, the loop variables, and memory accesses
-can be identified, analyzed for dependencies, and properly added to the header region as seen in 
-OpenMP code compiled with Clang. This shows that if the calling conventions for the missing 
-functions can be figured out, the pass will be able to produce runnable open mp code. 
+can be identified, analyzed for dependencies, and properly added to the header region as seen in
+OpenMP code compiled with Clang. This shows that if the calling conventions for the missing
+functions can be figured out, the pass will be able to produce runnable open mp code.
 
-In summary, LLVM is a promising framework for adding parallelism to existing codebases. 
+In summary, LLVM is a promising framework for adding parallelism to existing codebases.
 Once completely working, the AutoOMP pass will enable programmers to search for speedups
 in their code without any more overhead than adding a compiler option. While the approach
 taken by AutoOMP may not have been the most performant, enabling programmers to test speeding
 up their code may also allow them to see where they need to optimize for better performance.
 While LLVM currently does support OpenMP, the documentation in that area is distinctly lacking,
 leading to the issues AutoOMP is experiencing with malformed call instructions. If resolved,
-basic parallelism will be available to all programs that can target LLVM IR. 
+basic parallelism will be available to all programs that can target LLVM IR.
 
 
 \subsection{Future Work}
@@ -451,7 +451,7 @@ basic parallelism will be available to all programs that can target LLVM IR.
 Moving forward, the AutoOMP project will be continued. We aim to find the proper way to build these
 missing call instructions, and furthermore, to narrow down the range of loops we can parallelize.
 Additionally, we intend to use more of the code analysis tools available within LLVM to find
-special case loops and parallelize them differently. 
+special case loops and parallelize them differently.
 Once the code is runnable, we intend to compare performance and accuracy of several popular benchmark suites
 in a few different languages, both to verify that the loops we accelerate are safe to do so, and that
 the speedup gained from this is both useful and substantial.
