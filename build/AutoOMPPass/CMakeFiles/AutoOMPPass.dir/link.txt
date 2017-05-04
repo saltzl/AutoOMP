@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC   -shared  -o libAutoOMPPass.so CMakeFiles/AutoOMPPass.dir/AutoOMPPass.cpp.o  -L/usr/local/lib 
