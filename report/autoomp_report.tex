@@ -390,8 +390,10 @@ the previously run dominator tree analysis pass.
 We then iterate over every loop to test if it can be separated out and
 parallelized. This is basically a further filter to eliminate all
 loops that don't fulfill a certain set of properties that we
-define. For example, the loop must be in simplified form, which we
-check by examining its starting and terminating instructions. We also
+define. For example, the loop must be in simplified form, a form specified
+by the llvm IR as having a loop variable counting up from zero. We also
+check by examining its starting and terminating instructions, to verify
+that they are well formed and branch to the loop header and exit. We also
 rule out any loops which contain a function call, as this can easily
 lead to complicated dependencies and incorrectness in parallelization.
 
