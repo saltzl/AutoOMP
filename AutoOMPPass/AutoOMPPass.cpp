@@ -23,38 +23,34 @@ namespace {
 
 
       std::vector<Loop*> getParallelizableLoops(LoopInfo &LI){
-			std::vector<Loop*> parallelizableLoops;
+  			std::vector<Loop*> parallelizableLoops;
 
-			for(LoopInfo::iterator iter = LI.begin(), itend = LI.end(); iter != itend; ++iter){
-				if((*iter)->getUniqueExitBlock() == nullptr) continue;
-        bool shouldParallelize = true;
-        for(Loop::block_iterator BI = (*iter)->block_begin(), BE = (*iter)->block_end(); BI != BE; ++BI){
-          for(BasicBlock::iterator II = (*BI)->begin(), IE = (*BI)->end(); II != IE; ++II){
-            if(isa<CallInst>(II)){
-              shouldParallelize = false;
-              break;
+  			for(LoopInfo::iterator iter = LI.begin(), itend = LI.end(); iter != itend; ++iter){
+  				if((*iter)->getUniqueExitBlock() == nullptr) continue;
+          bool shouldParallelize = true;
+          for(Loop::block_iterator BI = (*iter)->block_begin(), BE = (*iter)->block_end(); BI != BE; ++BI){
+            for(BasicBlock::iterator II = (*BI)->begin(), IE = (*BI)->end(); II != IE; ++II){
+              if(isa<CallInst>(II)){
+                shouldParallelize = false;
+                break;
+              }
             }
+            if(!shouldParallelize) break;
           }
-          if(!shouldParallelize) break;
-        }
-				//add other checks here
-				parallelizableLoops.push_back(static_cast<Loop*>(*iter));
-			}
-
-
-		}
-
+  				//add other checks here
+  				parallelizableLoops.push_back(static_cast<Loop*>(*iter));
+  			}
+        return parallelizableLoops;
+    }
 		//loop extractor: modified from "LoopExtractor.cpp" in the llvm source
     Function* extractLoop(Loop *L, DominatorTree &DT, LoopInfo &LI) {
 			 // Only visit top-level loops.
-            std::cerr << "HERE a" << std::endl;
  			if (L->getParentLoop())
   			return nullptr;
 
  			// If LoopSimplify form is not available, stay out of trouble.
  			if (!L->isLoopSimplifyForm())
   			return nullptr;
-      std::cerr << "HERE b" << std::endl;
 
  			bool Changed = false;
 
@@ -63,11 +59,9 @@ namespace {
 		 // this function is more than a minimal wrapper around the loop, extract
 		 // the loop.
  			bool ShouldExtractLoop = false;
-      std::cerr << "HERE1 " << std::endl;
 
  		// Extract the loop if the entry block doesn't branch to the loop header.
    		TerminatorInst *EntryTI = L->getHeader()->getParent()->getEntryBlock().getTerminator();
-		  std::cerr << "HERE 2" << std::endl;
 		 if (!isa<BranchInst>(EntryTI) ||  !cast<BranchInst>(EntryTI)->isUnconditional() || EntryTI->getSuccessor(0) != L->getHeader()) {
   	 		ShouldExtractLoop = true;
  			} else {
@@ -149,6 +143,7 @@ namespace {
     bool runOnModule(Module &M) {
       std::cerr << "AUTO OMP PASS" << std::endl;
 
+
       for(Module::iterator fiter = M.getFunctionList().begin(); fiter != M.getFunctionList().end(); ++fiter){
 
             LoopInfo &LI = getAnalysis<LoopInfoWrapperPass>(*fiter).getLoopInfo();
@@ -194,3 +189,4 @@ static void registerAutoOMPPass(const PassManagerBuilder &, legacy::PassManagerB
     PM.add(new AutoOMPPass());
 }
 static RegisterPass<AutoOMPPass> X("autoOMP" , "Auto OMP Pass", false, false);
+
