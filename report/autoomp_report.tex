@@ -375,7 +375,50 @@ notes that the dominator tree pass is a function pass, so access to
 the analysis from this pass must also specify a specific function to
 retrieve analysis from.
 
-When our AutoOMP pass is run,
+When our AutoOMP pass is run, each function in the module is looped
+though. We then retrieve the list of loops from the previously run
+\texttt{LoopInfoWrapperPass}, and filter it based on which functions
+are in the loop. This filtering and separate retrieval of the loops is
+necessary because of the next step in our loop selection process,
+which is to query the dominator tree for each loop. As the dominator
+tree pass is a function pass and not a module pass, a query to this
+pass requires that you specify a specific function to obtain
+information about. Since we are filtering the set of all loops in the
+module by one particular function, we can use this function to query
+the previously run dominator tree analysis pass.
+
+We then iterate over every loop to test if it can be separated out and
+parallelized. This is basically a further filter to eliminate all
+loops that don't fulfill a certain set of properties that we
+define. For example, the loop must be in simplified form, which we
+check by examining its starting and terminating instructions. We also
+rule out any loops which contain a function call, as this can easily
+lead to complicated dependencies and incorrectness in parallelization.
+
+Once a loop is selected for parallelization, we first extract the loop
+into a separate function. After a few sanity checks like ensuring that
+the loop actually has instructions before and after its execution, we
+use a LLVM CodeExtractor to extract the entire code block containing
+of the loop into a separate function.
+
+After a loop becomes its own function, we need to create the
+intermediate OpenMP function that will call our newly separated loop,
+as well as construct some scaffolding into the newly extracted
+function. This includes such things as adding parsing for arguments
+and establishing a new scope for this function. These changes are also
+necessary for being called by openMP, as openMP uses them to establish
+a thread local context. Once we are sure that the extracted function
+will have all the pieces that openMP may require, we create a function
+call to the openMP fork function with our recently extracted function
+as an argument. Also passed to this function are variables that are
+required by the scope of the extracted function but not necessarily
+changing during the lifetime of the loop. The dominator tree is used
+indirectly in this process. We then insert the newly created call to
+fork in openMP into the original code where the loop used to be,
+hopefully creating a seamless call to openMP and seamlessly adding
+parallelization.
+
+
 
 
 \section{Conclusion}
