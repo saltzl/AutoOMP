@@ -342,7 +342,40 @@ Once all the optimization passes run, LLVM uses a backend to lower the
 IR to machine code. Many backends exist for LLVM covering all major
 architectures and many esoteric ones as well. This is the stage at
 which architecture specific optimizations take place.
+
+\subsection{OpenMP}
+OpenMP, short for Open Multi-Processing, is an API for locally running
+many threads to achieve parallelization. OpenMP uses the fork-join
+model, meaning that there is a master thread that is spawning slave
+threads to aid in the computation. OpenMP aims to make the job of
+parallelization extremely easy for the programmer, and to do so uses
+preprocessor macros, such as \texttt{\#pragma omp parallel} to mark
+certain sections of code as parallelizable. The compiler will then see
+the sections of code marked as such, and transparently break them out into a
+separate function, replacing the original section of code with a
+function call to openMP libraries. The called function will then fork
+numerous times depending on the environment and call the broken out
+section of code.
+
 \section{AutoOMP Architecture}
+AutoOMP is implemented as an LLVM optimization pass. As every part of
+LLVM is, AutoOMP is written using C++. More specifically, AutoOMP is
+implemented as a Module pass, which means that the pass gets run once
+on each module. This differs from, say, a function pass which gets run
+once and separately on each function. AutoOMP must be run as a module
+pass due to the forced process of breaking out loops into separate
+functions. A function pass does not have the ability to touch
+functions outside its own scope, so a higher scope is needed in order
+to create new functions. Our module pass specifies that it must be run
+after two other passes - the \texttt{LoopInfoWrapperPass} and the
+\texttt{DominatorTreeWrapperPass}. These passes are wrappers for
+analysis passes that gather information on all the loops in the
+module, and information on the Dominator tree for every function. One
+notes that the dominator tree pass is a function pass, so access to
+the analysis from this pass must also specify a specific function to
+retrieve analysis from.
+
+When our AutoOMP pass is run,
 
 \section{Evaluation}
 
