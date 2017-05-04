@@ -125,8 +125,8 @@
 
 % *** SPECIALIZED LIST PACKAGES ***
 %
-\usepackage{algorithmicx}
-\usepackage{algpseudocode}
+%% \usepackage{algorithmicx}
+%% \usepackage{algpseudocode}
 % algorithmic.sty was written by Peter Williams and Rogerio Brito.
 % This package provides an algorithmic environment fo describing algorithms.
 % You can use the algorithmic environment in-text or within a figure
@@ -275,7 +275,73 @@ Rensselaer Polytechnic Institute\\
 \IEEEpeerreviewmaketitle
 
 \section{Introduction}
+Writing parallel code has always been a more complicated task than
+writing serial code. With parallel code, the programmer needs to
+consider the impact of thread dependencies, shared memory and
+variables, and many other factors which can cause deadlock or
+incorrect code. However with modern parallel architectures it becomes
+increasingly important that programs and software be able to take
+advantage of the speedup from the modern parallel
+architectures.
 
+There have been many attempts to ease the burden of parallelization on
+the programmer. New languages have been developed with parallelization
+in mind. Frameworks have made it easier than ever to integrate
+parallel code into a serial project or construct an entire code base
+out of parallel code. However none of these attempts have taken over
+the programming world, due to a lack of programmer familiarity with
+the languages and frameworks. Clearly, there is a need for a
+parallelization mechanism which does not place any burden on the
+programmer at all, allowing for seamless and entirely hassle free
+parallelization. AutoOMP attempts to fill this niche by adding
+parallelization at compile time using LLVM, and integrating code with
+the OpenMP parallelization framework.
+
+\subsection{The LLVM Compiler Infrastructure}
+The LLVM compiler infrastructure is a ``collection of modular and
+reusable compiler and toolchain technologies.'' \cite{llvm-home} It
+has gained immense popularity in recent years due to its wide range of
+supported languages and architectures, and quick additions of new
+language standards such as c++17 in the C++ frontend to LLVM,
+clang. While the clang frontend for C and C++ is one of the most
+popular languages used with LLVM, the compiler supports many other
+languages through the use of different front ends. Other popular
+languages include Common Lisp, Fortran, Haskell, Java (bytecode),
+Python, and Swift. Any of the languages that LLVM supports can be
+compiled to any of the architectures that LLVM supports, which include
+every major architecture and some unconventional ones. For example, a
+program written in C++ can be compiled to x86 machine code. Haskell
+can be compiled to Javascript using LLVM.
+
+The LLVM compiler infrastructure achieves this flexibility through the
+use of an intermediate language. A program compiled using LLVM is
+first read by one of the many front ends to LLVM. The job of an LLVM
+front end is to parse and convert human readable code into the LLVM
+Intermediate Language, henceforth simply called IR. While the initial
+source code varies widely between language and paradigm, the IR
+produced from the front end will always have the same structure and
+can be operated on independently of the source language.
+
+Due to the uniformity of the structure, LLVM runs several optimization
+and analysis passes once the code has been converted to IR, again
+regardless of the source language. Some of these passes are purely for
+analysis, to collect information to later be used in optimization
+passes. These analysis passes can collect such information as the
+Dominator front for a function, or collecting information about the
+loops in the program. These analysis passes then provide information
+about the code to optimization passes, which can more easily make
+educated decisions about how to optimize the code and how to ensure
+the safety and correctness of the code. The optimization passes can
+state to the pass manager which other passes they depend on so that
+the required information is present when that pass is run. This also
+defines the order in which passes are run. This can also control the
+order of optimization passes, so that a pass that must be run last or
+before other passes can specify when it will run.
+
+Once all the optimization passes run, LLVM uses a backend to lower the
+IR to machine code. Many backends exist for LLVM covering all major
+architectures and many esoteric ones as well. This is the stage at
+which architecture specific optimizations take place.
 \section{AutoOMP Architecture}
 
 \section{Evaluation}
@@ -403,5 +469,7 @@ Rensselaer Polytechnic Institute\\
 % set second argument of \begin to the number of references
 % (used to reserve space for the reference number labels box)
 \begin{thebibliography}{1}
+\bibitem{llvm-home}
+“LLVM Overview,” The LLVM Compiler Infrastructure Project, [Online]. Available: https://llvm.org/. [Accessed: 03-May-2017].
 \end{thebibliography}
 \end{document}
